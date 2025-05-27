@@ -2,19 +2,16 @@ import pandas as pd
 
 
 def load_energy_data(filepath: str) -> pd.DataFrame:
-    df = pd.read_csv(filepath, parse_dates=["utc_timestamp"])
-    df = df[df["HU_solar_generation_actual"] > 0]  # Trim zeros
-    df = df.set_index("utc_timestamp").sort_index()
+    df = pd.read_excel(filepath)
+    df['utc_timestamp'] = pd.to_datetime(df['utc_timestamp'])
     return df
 
 
 def load_weather_data(filepath: str) -> pd.DataFrame:
-    df = pd.read_csv(filepath, comment="#", parse_dates=[0])
-    df.columns = [
-        "timestamp", "TOA", "ClearSky_GHI", "ClearSky_BHI", "ClearSky_DHI",
-        "ClearSky_BNI", "GHI", "BHI", "DHI", "BNI", "Reliability"
-    ]
-    df = df.set_index("timestamp").sort_index()
+    df = pd.read_csv(filepath, sep=';')
+    df['utc_timestamp'] = df['Date'].str.split('/').str[0]
+    df['utc_timestamp'] = pd.to_datetime(df['utc_timestamp'])
+    df.drop(columns=['Date'], inplace=True)
     return df
 
 
